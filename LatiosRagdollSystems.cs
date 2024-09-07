@@ -95,7 +95,7 @@ namespace LatiosRagdoll
                 switch (ragdolled.state)
                 {
                     case LatiosRagdolled.State.Ready:
-                        for (int i = 0; i < boneIndexes.Length; i++)
+                        for (int i = 0; i < ragdolledBones.Length; i++)
                         {
                             var boneIndex = boneIndexes[i];
                             if (boneIndex == -1) continue;
@@ -109,7 +109,7 @@ namespace LatiosRagdoll
                         break;
                     case LatiosRagdolled.State.Setuped:
                         ragdolled.state = LatiosRagdolled.State.Ready;
-                        for (int i = 0; i < boneIndexes.Length; i++)
+                        for (int i = 0; i < ragdolledBones.Length; i++)
                         {
                             var boneIndex = boneIndexes[i];
                             if (boneIndex == -1) continue;
