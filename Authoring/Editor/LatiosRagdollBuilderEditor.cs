@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using LatiosKinematicAnnotation.Authoring;
-using Src.GameReady.DotsRag.Authoring;
 using UnityEditor;
 using UnityEngine;
 

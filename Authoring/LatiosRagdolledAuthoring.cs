@@ -1,7 +1,6 @@
 ﻿#if UNITY_EDITOR
 using LatiosKinematicAnnotation.Authoring;
 using LatiosKinematicAnnotation.Authoring.So;
-using Src.GameReady.DotsRag.Authoring;
 using Unity.Collections;
 using Unity.Entities;
 using UnityEngine;
