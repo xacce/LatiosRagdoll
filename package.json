@@ -8,7 +8,8 @@
   "dependencies": {
     "com.unity.entities": "1.2.1",
     "com.latios.latiosframework": "0.10.1",
-    "com.unity.burst": "1.8.12"
+    "com.unity.burst": "1.8.12",
+    "com.xacce.latios.kinematic.annotation": "0.0.0"
   },
   "unityRelease": "13f1",
   "keywords": [
