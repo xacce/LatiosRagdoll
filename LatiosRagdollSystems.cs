@@ -5,7 +5,7 @@ using Unity.Collections.LowLevel.Unsafe;
 using Unity.Entities;
 using Unity.Transforms;
 
-namespace Src.GameReady.DotsRag
+namespace LatiosRagdoll
 {
     [BurstCompile]
     [UpdateInGroup(typeof(InitializationSystemGroup))]

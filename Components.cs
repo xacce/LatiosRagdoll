@@ -1,6 +1,6 @@
 ﻿using Unity.Entities;
 
-namespace Src.GameReady.DotsRag
+namespace LatiosRagdoll
 {
     public partial struct LatiosRagdolledBone : IBufferElementData
     {

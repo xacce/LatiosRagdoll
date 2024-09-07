@@ -1,10 +1,12 @@
 ﻿#if UNITY_EDITOR
-using Src.GameReady.LatiosHumanoidBodyBone.So;
+using LatiosKinematicAnnotation.Authoring;
+using LatiosKinematicAnnotation.Authoring.So;
+using Src.GameReady.DotsRag.Authoring;
 using Unity.Collections;
 using Unity.Entities;
 using UnityEngine;
 
-namespace Src.GameReady.DotsRag.Authoring
+namespace LatiosRagdoll.Authoring
 {
     [RequireComponent(typeof(LatiosEditorBones))]
     public class LatiosRagdolledAuthoring : MonoBehaviour

@@ -1,10 +1,10 @@
 ﻿using System.Collections.Generic;
-using Unity.Collections;
-using Unity.Entities.Hybrid.Baking;
+using LatiosKinematicAnnotation.Authoring;
+using Src.GameReady.DotsRag.Authoring;
 using UnityEditor;
 using UnityEngine;
 
-namespace Src.GameReady.DotsRag.Authoring.Editor
+namespace LatiosRagdoll.Authoring.Editor
 {
     [CustomEditor(typeof(LatiosRagdolledAuthoring))]
     public class LatiosRagdollBuilderEditor : UnityEditor.Editor
