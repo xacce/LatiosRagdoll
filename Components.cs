@@ -1,10 +1,17 @@
 ﻿using Unity.Entities;
+using Unity.Mathematics;
 
 namespace LatiosRagdoll
 {
     public partial struct LatiosRagdolledBone : IBufferElementData
     {
         public Entity collider;
+    }
+
+    public partial struct LationRagdolledBoneWithInfluence : IComponentData
+    {
+        public float3 applyPowerFrom;
+        public float3 applyPowerDirection;
     }
 
     public partial struct LatiosRagdolledAvatarBindings : IComponentData
@@ -34,9 +41,13 @@ namespace LatiosRagdoll
 
         public State state;
         public Entity ragdollWrapper;
+        public float3 applyPowerFrom;
+        public float3 applyPowerDirection;
     }
 
-    public partial struct LatiosRagdollInstantiateTag : IComponentData
+    public partial struct LatiosRagdollInstantiate : IComponentData
     {
+        public float3 applyPowerFrom;
+        public float3 applyPowerDirection;
     }
 }

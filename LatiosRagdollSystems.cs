@@ -3,7 +3,11 @@ using Unity.Burst;
 using Unity.Collections;
 using Unity.Collections.LowLevel.Unsafe;
 using Unity.Entities;
+using Unity.Mathematics;
+using Unity.Physics;
+using Unity.Physics.Aspects;
 using Unity.Transforms;
+using UnityEngine;
 
 namespace LatiosRagdoll
 {
@@ -12,22 +16,29 @@ namespace LatiosRagdoll
     partial struct RagdolSpawnSystem : ISystem
     {
         [BurstCompile]
-        [WithAll(typeof(LatiosRagdollInstantiateTag))]
         partial struct SpawnRagdolls : IJobEntity
         {
             public EntityCommandBuffer.ParallelWriter ecb;
             [NativeSetThreadIndex] private int index;
 
             [BurstCompile]
-            void Execute(in LatiosRagdolledPrefab prefab, in LatiosRagdolledAvatarBindings bindings, Entity entity)
+            void Execute(in LatiosRagdolledPrefab prefab, in LatiosRagdolledAvatarBindings bindings, LatiosRagdollInstantiate inst, Entity entity)
             {
                 var spawned = ecb.Instantiate(index, prefab.physicsStructurePrefab);
-                ecb.RemoveComponent<LatiosRagdollInstantiateTag>(index, entity);
-                ecb.AddComponent(index, entity, new LatiosRagdolled { ragdollWrapper = spawned, state = LatiosRagdolled.State.Setuped });
+            
+                ecb.AddComponent(index, entity, new LatiosRagdolled
+                {
+                    ragdollWrapper = spawned,
+                    state = LatiosRagdolled.State.Setuped,
+                    applyPowerDirection = inst.applyPowerDirection,
+                    applyPowerFrom = inst.applyPowerFrom,
+                });
                 if (bindings.blob.Value.addRagdolledBonesToLinkedGroup)
                 {
                     ecb.AppendToBuffer(index, entity, new LinkedEntityGroup() { Value = spawned });
                 }
+
+                ecb.RemoveComponent<LatiosRagdollInstantiate>(index, entity);
             }
         }
 
@@ -70,6 +81,17 @@ namespace LatiosRagdoll
         }
     }
 
+    [BurstCompile]
+    public partial struct ApplyImpulsesToBone : IJobEntity
+    {
+        [BurstCompile]
+        public void Execute(ref LationRagdolledBoneWithInfluence influence, RigidBodyAspect aspect)
+        {
+            if (influence.applyPowerFrom.Equals(float3.zero)) return;
+            aspect.ApplyImpulseAtPointWorldSpace(influence.applyPowerDirection, influence.applyPowerFrom);
+            influence.applyPowerFrom = float3.zero;
+        }
+    }
 
     [BurstCompile]
     [UpdateInGroup(typeof(FixedStepSimulationSystemGroup))]
@@ -94,19 +116,7 @@ namespace LatiosRagdoll
                 ref var boneIndexes = ref bindings.blob.Value.boneIndexes;
                 switch (ragdolled.state)
                 {
-                    case LatiosRagdolled.State.Ready:
-                        for (int i = 0; i < ragdolledBones.Length; i++)
-                        {
-                            var boneIndex = boneIndexes[i];
-                            if (boneIndex == -1) continue;
-                            var ragdolledBone = ragdolledBones[i];
-                            var bone = bones[boneIndex];
-                            var ltw = localToWorldRo[ragdolledBone.collider];
-                            bone.worldPosition = ltw.Position;
-                            bone.worldRotation = ltw.Rotation;
-                        }
-
-                        break;
+                 
                     case LatiosRagdolled.State.Setuped:
                         ragdolled.state = LatiosRagdolled.State.Ready;
                         for (int i = 0; i < ragdolledBones.Length; i++)
@@ -118,16 +128,41 @@ namespace LatiosRagdoll
                             var bone = bones[boneIndex];
                             var lt = new LocalTransform() { Position = bone.worldPosition, Rotation = bone.worldRotation, Scale = 1f };
                             ecb.SetComponent(index, ragdolledBone.collider, lt);
+                            if (!ragdolled.applyPowerFrom.Equals(float3.zero))
+                            {
+                                ecb.AddComponent(index, ragdolledBone.collider, new LationRagdolledBoneWithInfluence()
+                                {
+                                    applyPowerDirection = ragdolled.applyPowerDirection,
+                                    applyPowerFrom = ragdolled.applyPowerFrom
+                                });
+                            }
+                        }
+
+                        break;
+                    case LatiosRagdolled.State.Ready:
+                        for (int i = 0; i < ragdolledBones.Length; i++)
+                        {
+                            var boneIndex = boneIndexes[i];
+                            if (boneIndex == -1) continue;
+                            var ragdolledBone =  ragdolledBones[i];
+                            var bone = bones[boneIndex];
+                            var ltw = localToWorldRo[ragdolledBone.collider];
+                            bone.worldPosition = ltw.Position;
+                            bone.worldRotation = ltw.Rotation;
+                           
                         }
 
                         break;
                 }
+
+                ragdolled.applyPowerFrom = float3.zero;
             }
         }
 
         [BurstCompile]
         public void OnCreate(ref SystemState state)
         {
+            state.RequireForUpdate<EndFixedStepSimulationEntityCommandBufferSystem.Singleton>();
             state.RequireForUpdate<EndSimulationEntityCommandBufferSystem.Singleton>();
             _lookups = new Lookups(ref state);
         }
@@ -148,6 +183,7 @@ namespace LatiosRagdoll
                 ragdolledboneRo = _lookups.ragdolledboneRo,
                 ecb = ecb.CreateCommandBuffer(state.WorldUnmanaged).AsParallelWriter(),
             }.ScheduleParallel();
+            new ApplyImpulsesToBone().ScheduleParallel();
         }
 
         [BurstCompile]

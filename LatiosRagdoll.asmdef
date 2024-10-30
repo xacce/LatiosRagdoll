@@ -12,6 +12,7 @@
         "Unity.Entities.Hybrid",
         "Unity.Burst",
         "Unity.Scenes",
+        "Unity.Physics",
         "UnityEngine.UI",
         "UnityEditor.UI",
         "LatiosKinematicAnnotation"

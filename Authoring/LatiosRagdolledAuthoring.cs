@@ -75,7 +75,7 @@ namespace LatiosRagdoll.Authoring
                 builder.Dispose();
 
                 AddComponent(e, new LatiosRagdolledAvatarBindings { blob = blobReference });
-                if (authoring.atStart) AddComponent<LatiosRagdollInstantiateTag>(e);
+                if (authoring.atStart) AddComponent<LatiosRagdollInstantiate>(e);
             }
         }
     }
